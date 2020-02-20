@@ -19,7 +19,7 @@
 {% load i18n %}
 {% load tz %}
 {% load humanize %}
-{% load staticfiles %}
+{% load static %}
 
 {% block title %}
     {% if markdata.type == 'safe' %}{% trans 'Safes mark' %}{% elif markdata.type == 'unknown' %}{% trans 'Unknowns mark' %}{% else %}{% trans 'Unsafes mark' %}{% endif %}
