@@ -9,7 +9,7 @@ Tools:
 - svn;
 - postgresql;
 - java;
-- python 3.
+- python 3 (version 3.6 or newer).
 
 Python modules:
 - requests;
@@ -24,7 +24,7 @@ Python modules:
 - attrs;
 - setuptools;
 - six;
-- django (2.1);
+- django (3.0.3);
 - psycopg2.
 
 All requirements can be installed on Ubuntu 16.04 with the following commands:
@@ -32,7 +32,7 @@ All requirements can be installed on Ubuntu 16.04 with the following commands:
 sudo apt install git subversion python3-dev openjdk-8-jre-headless ant postgresql python3-pip python-psycopg2 libpq-dev
 sudo pip3 install --upgrade setuptools
 sudo pip3 install --upgrade pip
-sudo pip3 install requests ujson graphviz django==2.1 psycopg2 pluggy py attrs six more-itertools ply pytest atomicwrites
+sudo pip3 install requests ujson graphviz django==3.0.3 psycopg2 pluggy py attrs six more-itertools ply pytest atomicwrites
 
 Deployment
 ----------
