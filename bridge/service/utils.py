@@ -387,7 +387,12 @@ class VisualizeWitness:
                         self.witness = stored_file
                     elif file_id == "upload_sources":
                         sources_dir = os.path.join(self.launcher_dir, DEFAULT_SOURCES_DIR)
-                        os.system("unzip {} -d {}".format(tmp_file, sources_dir))
+                        if zipfile.is_zipfile(tmp_file):
+                            os.system("unzip {} -d {}".format(tmp_file, sources_dir))
+                        else:
+                            source_file_name = os.path.join(sources_dir, file.name)
+                            os.makedirs(sources_dir, exist_ok=True)
+                            shutil.copy(tmp_file, source_file_name)
                         self.sources_dir = sources_dir
                     else:
                         logger.warning("Unknown type of uploaded file {}".format(file_id))

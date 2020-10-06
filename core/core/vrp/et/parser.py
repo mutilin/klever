@@ -81,9 +81,13 @@ class ErrorTraceParser:
             if os.path.exists(abs_path):
                 return abs_path
             for source_root in os.listdir(self.source_dir):
-                match = re.search(r'(.+)/{}/(.+)'.format(source_root), abs_path)
+                match = re.search(r'(.+)/{}/?(.*)'.format(source_root), abs_path)
                 if match:
-                    potential_name = os.path.join(self.source_dir, source_root, match.group(2))
+                    suffix = match.group(2)
+                    if suffix:
+                        potential_name = os.path.join(self.source_dir, source_root, match.group(2))
+                    else:
+                        potential_name = os.path.join(self.source_dir, source_root)
                     if os.path.exists(potential_name):
                         return potential_name
         # TODO: workaround for some tools.
