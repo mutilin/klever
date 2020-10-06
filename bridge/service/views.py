@@ -37,6 +37,8 @@ from service.models import Scheduler, SolvingProgress, Task, VerificationTool, N
 from service.test import TEST_NODES_DATA, TEST_TOOLS_DATA, TEST_JSON
 from tools.profiling import unparallel_group
 
+DEFAULT_WVO_LANG = 'EN'
+
 
 @unparallel_group([SolvingProgress])
 def schedule_task(request):
@@ -309,6 +311,29 @@ def launcher_view(request, pk=""):
         return JsonResponse({'error': 'No access'})
     activate(request.user.extended.language)
     return render(request, 'service/launcher.html', {'data': service.utils.LauncherData(job_id=pk)})
+
+
+# @login_required
+def wvo_view(request):
+    activate(DEFAULT_WVO_LANG)
+    return render(request, 'service/wvo.html', {})
+
+
+# @login_required
+def wv_view(request, id):
+    activate(DEFAULT_WVO_LANG)
+    return render(request, 'service/wv.html', {'data': service.utils.get_wvo_content(id)})
+
+
+# @login_required
+@unparallel_group([NodesConfiguration, Workload])
+def visualize_witness(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST requests are supported'})
+    wvo = service.utils.VisualizeWitness(request)
+    if wvo.error:
+        return JsonResponse({'error': wvo.error})
+    return JsonResponse({'id': wvo.id})
 
 
 @login_required

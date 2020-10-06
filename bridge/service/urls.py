@@ -25,6 +25,7 @@ urlpatterns = [
     path('ajax/fill_session/', views.fill_session),
     path('ajax/process_job/', views.process_job),
     path('ajax/launch_job/', views.launch_job),
+    path('ajax/visualize_witness/', views.visualize_witness),
 
     path('set_schedulers_status/', views.set_schedulers_status),
     path('get_jobs_and_tasks/', views.get_jobs_and_tasks),
@@ -40,6 +41,8 @@ urlpatterns = [
     path('update_progress/', views.update_progress),
     path('schedulers/', views.schedulers_info, name='schedulers'),
     path('launcher/', views.launcher_view, name='launcher'),
+    path('witness_visualizer_online/', views.wvo_view, name='witness_visualizer_online'),
+    path('witness_visualizer/<str:id>/', views.wv_view, name='witness_visualizer'),
     path('launcher/<int:pk>/', views.launcher_view, name='launcher'),
     path('get_config/<str:file>/', views.get_config),
     path('ajax/add_scheduler_user/', views.add_scheduler_user)

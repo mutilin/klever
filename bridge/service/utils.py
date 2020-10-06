@@ -47,6 +47,12 @@ from service.models import Scheduler, SolvingProgress, Task, VerificationTool, N
     Workload, Solution, Node, JobProgress
 
 DEFAULT_VERIFIER_DIR = "verifier"
+DEFAULT_SOURCES_DIR = "sources"
+DEFAULT_RESULTS_DIR = "results"
+WITNESS_VISUALIZER_SCRIPT = "scripts/visualize_witnesses.py"
+WITNESS_VISUALIZER_DIR = ""  # TODO: should be configured
+DEFAULT_WITNESS_NAME = "witness.graphml"
+DEFAULT_RESULT_FILE = "witness.zip"
 DEFAULT_TASKS_DIR = "tasks"
 DEFAULT_BENCHMARK_FILE = "benchmark.xml"
 
@@ -330,6 +336,78 @@ class LaunchTask:
                     launcher_env[key] = val
             subprocess.run(GENERIC_LAUNCHER_COMMAND, shell=True, check=True, env=launcher_env)
             os.chdir(self.cur_dir)
+        except Exception as e:
+            logger.exception(e)
+            self.error = str(e)
+
+
+def get_wvo_dir(identifier: str):
+    return os.path.join(get_launcher_dir(), "results_{}".format(identifier))
+
+
+def get_wvo_content(identifier: str) -> str:
+    working_dir = get_wvo_dir(identifier)
+    visualized_witness_files = glob.glob(os.path.join(working_dir, DEFAULT_RESULTS_DIR, "*html"))
+    if not visualized_witness_files:
+        return ""
+    with open(visualized_witness_files[0], 'r') as file:
+        res = file.read()
+    shutil.rmtree(os.path.join(working_dir, DEFAULT_SOURCES_DIR), ignore_errors=True)
+    witness_file = os.path.join(working_dir, DEFAULT_WITNESS_NAME)
+    if os.path.exists(witness_file):
+        os.remove(witness_file)
+    return res
+
+
+class VisualizeWitness:
+    def __init__(self, request: HttpRequest):
+        timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S')
+        self.id = timestamp
+        self.launcher_dir = get_wvo_dir(timestamp)
+        self.results_dir = os.path.join(self.launcher_dir, DEFAULT_RESULTS_DIR)
+        self.cur_dir = os.getcwd()
+        self.error = None
+        self.witness = None
+        self.sources_dir = None
+
+        os.makedirs(self.results_dir)
+        self.__process_files(request)
+        if not self.error:
+            self.__visualize()
+
+    def __process_files(self, request):
+        if request.FILES:
+            for file_id in request.FILES:
+                for file in request.FILES.getlist(file_id):
+                    path = default_storage.save('tmp', ContentFile(file.read()))
+                    tmp_file = os.path.join(settings.MEDIA_ROOT, path)
+                    if file_id == "upload_witness":
+                        stored_file = os.path.join(self.launcher_dir, DEFAULT_WITNESS_NAME)
+                        shutil.move(tmp_file, stored_file)
+                        self.witness = stored_file
+                    elif file_id == "upload_sources":
+                        sources_dir = os.path.join(self.launcher_dir, DEFAULT_SOURCES_DIR)
+                        os.system("unzip {} -d {}".format(tmp_file, sources_dir))
+                        self.sources_dir = sources_dir
+                    else:
+                        logger.warning("Unknown type of uploaded file {}".format(file_id))
+                        os.remove(tmp_file)
+        if not self.witness:
+            self.error = _('No witness file')
+        if not self.sources_dir:
+            self.error = _('No sources directory')
+
+    def __visualize(self):
+        try:
+            os.chdir(WITNESS_VISUALIZER_DIR)
+            subprocess.run("{} --witness {} --result-dir {} --source-dir {} -u".
+                           format(WITNESS_VISUALIZER_SCRIPT, self.witness, self.results_dir, self.sources_dir),
+                           shell=True, check=True)
+            archive_file = os.path.join(self.results_dir, DEFAULT_RESULT_FILE)
+            if os.path.exists(archive_file):
+                os.remove(archive_file)
+            os.chdir(self.cur_dir)
+            logger.info("Witness with id {} was successfully converted".format(self.id))
         except Exception as e:
             logger.exception(e)
             self.error = str(e)

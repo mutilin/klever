@@ -1,0 +1,73 @@
+{% extends 'service/base.html' %}
+{% comment "License" %}
+%
+% Klever-CV is a web-interface for continuous verification results visualization.
+%
+% Copyright (c) 2018-2019 ISP RAS (http://www.ispras.ru)
+% Ivannikov Institute for System Programming of the Russian Academy of Sciences
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%    http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+{% endcomment %}
+
+{% load i18n %}
+
+{% block head_block %}
+    <script src="/static/service/js/wvo.js"></script>
+{% endblock %}
+
+{% block title %}{% trans 'Witness Visualizer Online' %}{% endblock %}
+
+{% block body_block %}
+<div class="ui grid">
+    <div class="eight wide column">
+        <div class="ui segment purple">
+            <h4 class="title black-link">
+                <i class="cogs icon"></i><i>{% trans 'Mandatory options' %}</i>
+            </h4>
+            <div class="ui form">
+                <div class="two fields" id="default_job_type_section">
+                    <div class="field required">
+                        <label for="upload_witness">{% trans 'Witness' %}</label>
+                        <span class="ui button basic btn-file fluid orange" id="upload_witness_button">
+                            <span id="upload_witness_name">{% trans 'Browse' %}</span>
+                            <input id="upload_witness" type="file">
+                        </span>
+                    </div>
+                    <div class="field required">
+                        <label for="upload_sources">{% trans 'Archive with source files' %}</label>
+                        <span class="ui button basic btn-file fluid orange" id="upload_sources_button">
+                            <span id="upload_sources_name">{% trans 'Browse' %}</span>
+                            <input id="upload_sources" type="file">
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="eight wide column">
+        <div class="ui segment blue" hidden>
+            <h4 class="title black-link">
+                <i class="cogs icon"></i><i>{% trans 'Optional settings' %}</i>
+            </h4>
+        </div>
+    </div>
+</div>
+<div class="ui grid">
+    <div class="eight wide column">
+        <button class="ui button red right floated" id="launch_button"><i class="rocket icon"></i>{% trans 'Launch' %}</button>
+    </div>
+</div>
+<span id="trans__err_witness" hidden>{% trans 'Witness was not specified' %}</span>
+<span id="trans__err_sources" hidden>{% trans 'Archive with sources directory was not specified' %}</span>
+
+{% endblock %}
